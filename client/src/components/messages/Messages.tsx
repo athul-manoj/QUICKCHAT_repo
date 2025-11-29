@@ -1,23 +1,37 @@
-// File: client/src/components/messages/Messages.tsx
-import useConversation from "../../zustand/useConversation.ts";
-import Message from "./Message.tsx"; // Import the individual bubble component
+import { useEffect, useRef } from "react";
+import useConversation from "../../zustand/useConversation";
+import { useSocketContext } from "../../context/SocketContext";
+import Message from "./Message";
 
 const Messages = () => {
-    // 💡 1. Get messages from the global state
-    const { messages } = useConversation();
-    
-  
-    
-  return (
-        <div className='px-4 flex-1 overflow-auto'>
-            {messages.map((message) => ( // 💡 USE 'messages' HERE
-                <div key={message.id}>
-                    <Message message={message} />
-                </div>
-            ))}
-            {/* You won't see any messages yet, but the structure is correct */}
-        </div>
-    );
-};
+  const { messages, addMessage, selectedConversation } = useConversation();
+  const { socket } = useSocketContext();
+  const lastRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!socket) return;
+    const handler = (msg: any) => {
+      if (
+        msg.senderId === selectedConversation?._id ||
+        msg.receiverId === selectedConversation?._id
+      )
+        addMessage(msg);
+    };
+    socket.on("newMessage", handler);
+    return () => void socket.off("newMessage", handler);
+  }, [socket, selectedConversation, addMessage]);
+
+  useEffect(() => {
+    lastRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  return (
+    <div className="px-4 flex-1 overflow-auto">
+      {messages.map((msg) => (
+        <Message key={msg._id} msg={msg} />
+      ))}
+      <div ref={lastRef} />
+    </div>
+  );
+};
 export default Messages;

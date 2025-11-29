@@ -10,32 +10,42 @@ export interface User {
     isOnline?: boolean;
 }
 
+export type MessageType = {
+  _id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  createdAt: string;
+};
+
 interface ConversationState {
-    selectedConversation: User | null;
-    setSelectedConversation: (selectedConversation: User | null) => void;
+  selectedConversation: User | null;
+  setSelectedConversation: (c: User | null) => void;
 
-    messages: any[];
-    setMessages: (messages: any[]) => void;
+  messages: MessageType[];        // ← real type
+  setMessages: (m: MessageType[]) => void;
+  addMessage: (m: MessageType) => void;   // ← missing member
 
-    conversations: User[];
-    setConversations: (conversations: User[]) => void;
+  conversations: User[];
+  setConversations: (u: User[]) => void;
 
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
+  searchTerm: string;
+  setSearchTerm: (t: string) => void;
 }
 
 const useConversation = create<ConversationState>((set) => ({
-    selectedConversation: null,
-    setSelectedConversation: (selectedConversation) => set({ selectedConversation }),
+  selectedConversation: null,
+  setSelectedConversation: (c) => set({ selectedConversation: c }),
 
-    messages: [],
-    setMessages: (messages) => set({ messages }),
+  messages: [],
+  setMessages: (m) => set({ messages: m }),
+  addMessage: (m) => set((state) => ({ messages: [...state.messages, m] })), // ← ADD
 
-    conversations: [],
-    setConversations: (conversations) => set({ conversations }),
+  conversations: [],
+  setConversations: (c) => set({ conversations: c }),
 
-    searchTerm: "",
-    setSearchTerm: (term) => set({ searchTerm: term }),
+  searchTerm: "",
+  setSearchTerm: (t) => set({ searchTerm: t }),
 }));
 
 export default useConversation;

@@ -9,6 +9,8 @@ export interface IUser extends Document {
     profilePic: string; // URL to the avatar
     createdAt: Date;
     updatedAt: Date;
+    isOnline: boolean;
+    lastSeen: Date;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -17,7 +19,9 @@ const UserSchema = new Schema<IUser>(
         username: { type: String, required: true, unique: true },
         password: { type: String, required: true, minlength: 6 },
         gender: { type: String, required: true, enum: ['male', 'female'] },
-        profilePic: { type: String, default: "" }, // Default empty string
+        profilePic: { type: String, default: "" },
+        isOnline: { type: Boolean, default: false },
+        lastSeen: { type: Date, default: Date.now },
     },
     { timestamps: true } // Adds createdAt and updatedAt fields
 );
